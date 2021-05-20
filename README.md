@@ -1,10 +1,6 @@
-# NBA-Salary-Analysis
+# NBA Salary Analysis
 
----
-title: "NBA Analysis"
-author: "Benjamin Fishman, Hamza Farooq, Juan Serrano Nino"
-output: pdf_document
----
+#### Authors: Benjamin Fishman, Hamza Farooq, Juan Nicolas Serrano
 
 
 **ABSTRACT**
