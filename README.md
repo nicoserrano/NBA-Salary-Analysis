@@ -68,6 +68,8 @@ reg = lm(Salary ~., data = NBA)
 summary(reg)
 ```
 
+![Exhibit1](https://user-images.githubusercontent.com/83378141/118920017-902f6e00-b903-11eb-86e4-0e207ed68686.png)
+
 
 We began our analysis of variables by creating a correlation plot. This plot consists of the 12 predictor variables that our dataset provided. Our interest was to see how these variables correlated with one another both numerically and by the color scale on the right side.
 
@@ -82,6 +84,8 @@ par(cex = 0.6)
 corrplot(c)             
 corrplot(c, add = TRUE, method = "number", type="lower", diag=FALSE, tl.pos="n", cl.pos="n")    
 ```
+![Exhibit2](https://user-images.githubusercontent.com/83378141/118920062-a5a49800-b903-11eb-81f9-a018642148fc.png)
+
 The figure above gives us a visual representation of the correlation between each variable pair. Our response variable, Salary, has a very weak correlation with Games, while every other variable has at least a semi-strong correlation with our response variable (greater than 0.40). High correlation between the independent variables hints at multicollinearity. Additionally, the correlation between Age and Games is very weak, which would suggest that they do not rely on one another. We want to explore these relationships more in future figures, but it supports our theory that more game time (minutes played) relates to higher player statistics.
 
 We inserted a correlation matrix to help our initial analysis of the database. Coloring the variables by Position proved to be the most useful.
@@ -93,6 +97,8 @@ We inserted a correlation matrix to help our initial analysis of the database. C
 library(GGally)
 ggpairs(NBA, columns=c(4,5,6,13),ggplot2::aes(colour=Pos))
 ```
+![Exhibit3](https://user-images.githubusercontent.com/83378141/118920138-ca007480-b903-11eb-82e4-dd1b53efdacb.png)
+
 
 In the figure above, red, gold, green, blue, and purple represent the center, power forward, point guard, small forward, and shooting guard positions respectively. We expected each position to have different values for age, games played, minutes per game, and average points scored per game. By looking at the minutes against minutes plot, we see that shooting guards have a higher peak in average minutes played per game compared to other positions. In the point-by-point model, shooting guards have a median points per game around 10 while small forward and center are closer to 5. The correlation between minutes and games overall is 0.519. If we look at the independent correlations of positions, shooting guard is the lowest with a 0.312 while center is the highest at 0.571. Overall, the scatterplot of minutes and points shows us that all positions follow a similar pathway with a slight exponential curve. 
 
@@ -108,6 +114,10 @@ a + ggtitle("Points and Salary Scatterplot")
 b = ggplot(NBA, aes(Age, Salary, colour=Pos))+geom_point()+geom_smooth(method="lm",se=F)
 b + ggtitle("Age and Salary Scatterplot")
 ```
+![Exhibit4](https://user-images.githubusercontent.com/83378141/118920789-100a0800-b905-11eb-8453-a21ae219fdd0.png)
+
+![Exhibit5](https://user-images.githubusercontent.com/83378141/118920211-f3210500-b903-11eb-8c0c-e7295e9a4703.png)
+
 
 From these scatterplots above, we can visualize the relationship between the number of points scored per game and Salary on one figure, and the relation between Age and Salary on the other. For 30-point scorers, the shooting guard position gets paid the least (at about $25,000,000) while the center and point guard are getting paid over $30,000,000. In the Age graph, the older the point guard, the higher they are paid while the oldest centers have a salary more than $10,000,000 less than point guards.
 
@@ -128,6 +138,9 @@ NBA$MGames = NBA$Games - mean(NBA$Games)
 reg2 = lm(Salary ~ Conf + Pos + MAge + MGames + Mins + I(Mins^2) + FG + Three + Rebound + Assist + Steal + TOV + Point, data = NBA)
 summary(reg2)
 ```
+![Exhibit6](https://user-images.githubusercontent.com/83378141/118920712-ec46c200-b904-11eb-9186-58f7bfad9fdf.png)
+![Exhibit6b](https://user-images.githubusercontent.com/83378141/118920717-ef41b280-b904-11eb-9fc9-1433e7d17804.png)
+
 
 At this point, our current regression model has 13 variables (not including 4 dummy variables for position), and our goal is to make a parsimonious model. We ran a backwards elimination regression model which resulted in 9 predictor variables, all of which are significant except for FG. This process yielded an adjusted R-squared of 0.6537. Because this is a heuristics method, it does not guarantee the optimal model, so we ran a best subsets regression on this data, which produced an adjusted R-squared of 0.652, which is almost identical to the backwards elimination model. Nevertheless, we will use the backwards elimination model for our future analysis because of the higher adjusted R-squared.
 
@@ -158,6 +171,7 @@ reg.summary$adjr2
 coef(BSR,8)                             #the variables that we want
 ```
 
+![Exhibit7](https://user-images.githubusercontent.com/83378141/118920944-4b0c3b80-b905-11eb-94a8-bd33990afaf9.png)
 
 
 **MODELING**
@@ -167,6 +181,8 @@ coef(BSR,8)                             #the variables that we want
 #we want this to be shown in the final pdf output - this is our parsimonious model
 summary(BE)
 ```
+![Exhibit8](https://user-images.githubusercontent.com/83378141/118920992-62e3bf80-b905-11eb-9007-00d996e72cda.png)
+
 
 The interpretation of the NBA parsimonious model above, found through a backwards elimination regression method (and checked with a best subset regression), is the following:
 
@@ -214,6 +230,9 @@ plot(BE, which = 1)
 hist(BE$residuals, main = "Histogram of Residuals", xlab="Residuals")
 ```
 
+![Exhibit9](https://user-images.githubusercontent.com/83378141/118921060-7f7ff780-b905-11eb-94aa-b1fce8ca1e2d.png)
+
+
 The scatterplot on the left indicates there is slight heteroscedasticity as many data points are clustered on the left side. We attempted to log and square root the response variable (Salary) after running a boxCox diagnostic (which suggested a log transformation, but a square root transformation was also a possibility), but it did not improve the dataset, in fact it decreased our adjusted R square value significantly. We applied a log transformation to Mins, as well as Rebounds, but once again, there was no improvement to this scatterplot. There is clearly a linear relation between X and Y, as well as each error being independent. The histogram suggests normality and randomness for the residuals, which suggests our dataset is valid.
 
 Even though our scatterplot does not exhibit perfect homoscedasticity, our histogram plot indicates normality, which is an assumption that allows us to utilize this dataset for our conclusions.
@@ -229,6 +248,9 @@ The scatterplot matrix below shows the relations between all variables. We want 
 sub = subset(NBA, select = c(Salary, Mins, FG, Rebound, Assist, Steal, Point))
 plot(sub)
 ```
+
+![Exhibit10](https://user-images.githubusercontent.com/83378141/118921090-8f97d700-b905-11eb-942a-a481b47fbe7d.png)
+
 
 The graphs in the Salary row that are not perfectly linear are Mins and Rebounds, which is why we applied transformations to them, but they did not improve the data set. This scatterplot matrix lead us to create a squared Mins term in our parsimonious model.
 
@@ -257,10 +279,8 @@ predict(BE, NBA[28,], interval = "prediction")
 We turned this question into a hypothesis test, where the null is the salary should be $29,614,878 while the alternative hypothesis is that it should not be $29,614,878. 
 
 
-$$H_0: \beta_1 = \$ 29,614,878$$
+![Exhibit14](https://user-images.githubusercontent.com/83378141/118921471-3b412700-b906-11eb-8dcc-e42df7350403.png)
 
-
-$$H_1: \beta_1 \neq \$ 29,614,878$$
 
 Our 95% prediction interval yielded a range from $2,590,330 to $24,753,414. Because our predicted value is outside of this prediction interval range, we reject the null hypothesis based on 95% significance, however, the value we found is not far from being within the range.
 
@@ -282,23 +302,19 @@ ggplot(NBA, aes(x=Pos, y=Salary, fill=Pos))+
   labs(y="Salary $", x = "Position")
 ```
 
+![Exhibit11](https://user-images.githubusercontent.com/83378141/118921157-accca580-b905-11eb-8107-6da8c58ee76a.png)
+
+
+
 The above figure is a boxplot distribution split on the 5 positions in the NBA. An initial analysis shows that the PG position has the highest mean salary by a large margin, while also having the highest outliers of all positions. We are going to create a hypothesis test to analyze the commissioner’s claim. 
 
 Our null hypothesis will be this: salaries across positions are the same and therefore are not statistically significant
 
 
+![Exhibit13](https://user-images.githubusercontent.com/83378141/118921420-2369a300-b906-11eb-8d87-c51bede0b914.png)
 
 
 
-*Null hypothesis*
-$$H_0: \mu_1 = \mu_2 = \mu_3 = \mu_4$$
-
-
-Our alternative hypothesis will be this: salaries across positions are NOT the same and therefore is statistically significant.
-
-
-*Alternative Hypothesis*
-$$H_1: \mu_1\neq \mu_2 \neq \mu_3 \neq \mu_4$$
 To conclude whether or not position is statistically significant, we ran the new regression model below that shows the relation between Salary and Position.
 
 
@@ -307,6 +323,8 @@ To conclude whether or not position is statistically significant, we ran the new
 q3= lm(Salary ~ Pos, data=NBA)
 summary(q3)
 ```
+![Exhibit12](https://user-images.githubusercontent.com/83378141/118921247-d7b6f980-b905-11eb-9cca-1b3fc4bb0322.png)
+
 
 After running the linear regression model where we predicted Salary based on Position (dummy variables were automatically made within R), we found that C (center) was our baseline reference. This summary concludes that Position is NOT a statistically significant predictor of Salary. The p-value is very high, 0.1961, while our adjusted R square is very low, 0.005341, so compared to the baseline reference of C, the other positions are not statistically different. There is a very large amount of variability within this data set as our Residual Standard Error is 9,444,000.
 
